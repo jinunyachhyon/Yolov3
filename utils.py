@@ -5,6 +5,7 @@ import numpy as np
 import os
 import random
 import torch
+import cv2
 
 from collections import Counter
 from torch.utils.data import DataLoader
@@ -223,7 +224,7 @@ def mean_average_precision(
     return sum(average_precisions) / len(average_precisions)
 
 
-def plot_image(image, boxes):
+def plot_image(image, boxes, image_path):
     """Plots predicted bounding boxes on the image"""
     cmap = plt.get_cmap("tab20b")
     class_labels = config.PASCAL_CLASSES
@@ -265,11 +266,43 @@ def plot_image(image, boxes):
             bbox={"color": colors[int(class_pred)], "pad": 0},
         )
 
-    # Save the image
-    plt.savefig("inference.jpg")
+    # Save the image with a custom filename
+    image_name = os.path.splitext(os.path.basename(image_path))[0]  # Extract the image file name without extension
+    save_name = f"./inference/inference_{image_name}.jpg"
+    plt.savefig(save_name)
 
     # Display the image
     plt.show()
+
+
+def display_video(frame, boxes):
+    """Draws predicted bounding boxes on the frame using OpenCV"""
+    cmap = plt.get_cmap("tab20b")
+    class_labels = config.PASCAL_CLASSES
+    colors = [cmap(i) for i in np.linspace(0, 1, len(class_labels))]
+    im = np.array(frame)
+    height, width, _ = im.shape
+
+    for box in boxes:
+        assert len(box) == 6, "box should contain class pred, confidence, x, y, width, height"
+        class_pred = int(box[0])
+        x, y, w, h = map(int, box[2:])
+
+        # Calculate box coordinates
+        xmin = int((x - w / 2) * width)
+        ymin = int((y - h / 2) * height)
+        xmax = int((x + w / 2) * width)
+        ymax = int((y + h / 2) * height)
+
+        # Draw bounding box rectangle
+        cv2.rectangle(im, (xmin, ymin), (xmax, ymax), colors[class_pred], 2)
+
+        # Add class label text
+        label = f"{class_labels[class_pred]}"
+        cv2.putText(im, label, (xmin, ymin - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, colors[class_pred], 2)
+
+    return im
+
 
 
 def get_evaluation_bboxes(
