@@ -9,14 +9,13 @@ from utils import *
 
 # Load the model
 model = YOLOv3(num_classes=config.NUM_CLASSES)
-
 model_path = "Yolov3_epoch80.pth"
 state_dict = torch.load(model_path, map_location=torch.device('cpu'))
 model.load_state_dict(state_dict)
 # print(model)
 
 # Load and preprocess image
-image_path = "000193.jpg"
+image_path = "./test_image/000025.jpg"
 input_image = Image.open(image_path)
 
 transform = transforms.Compose([
@@ -44,4 +43,4 @@ with torch.no_grad():
     nms_boxes = non_max_suppression(
         bboxes, iou_threshold=0.5, threshold=0.6, box_format="midpoint",
     )
-    plot_image(input_image, nms_boxes)
+    plot_image(input_image, nms_boxes, image_path)
