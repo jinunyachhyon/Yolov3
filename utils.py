@@ -1,6 +1,7 @@
 import config
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 import numpy as np
 import os
 import random
@@ -224,7 +225,7 @@ def mean_average_precision(
     return sum(average_precisions) / len(average_precisions)
 
 
-def plot_image(image, boxes, image_path):
+def plot_image(image, boxes, image_path=None):
     """Plots predicted bounding boxes on the image"""
     cmap = plt.get_cmap("tab20b")
     class_labels = config.PASCAL_CLASSES
@@ -266,43 +267,57 @@ def plot_image(image, boxes, image_path):
             bbox={"color": colors[int(class_pred)], "pad": 0},
         )
 
-    # Save the image with a custom filename
-    image_name = os.path.splitext(os.path.basename(image_path))[0]  # Extract the image file name without extension
-    save_name = f"./inference/inference_{image_name}.jpg"
-    plt.savefig(save_name)
+    if image_path is not None:
+        # Save the image with a custom filename
+        image_name = os.path.splitext(os.path.basename(image_path))[0]  # Extract the image file name without extension
+        save_name = f"./inference/inference_{image_name}.jpg"
+        plt.savefig(save_name)
 
-    # Display the image
-    plt.show()
+        # Display the image
+        plt.show()
 
 
-def display_video(frame, boxes):
-    """Draws predicted bounding boxes on the frame using OpenCV"""
-    cmap = plt.get_cmap("tab20b")
+def draw_bounding_boxes(image, boxes):
+    """Draw bounding box in frames, using OpenCV because used in inference of Video."""
+    # Convert RGB array to BGR array (compatible with OpenCV)
+    bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
     class_labels = config.PASCAL_CLASSES
-    colors = [cmap(i) for i in np.linspace(0, 1, len(class_labels))]
-    im = np.array(frame)
-    height, width, _ = im.shape
+    colors = np.random.uniform(0, 255, size=(len(class_labels), 3))  # Random colors for each class
+    height, width, _ = bgr_image.shape
 
+    # Draw bounding box in the image
     for box in boxes:
         assert len(box) == 6, "box should contain class pred, confidence, x, y, width, height"
-        class_pred = int(box[0])
-        x, y, w, h = map(int, box[2:])
+        class_pred = box[0]
+        box = box[2:]
+        upper_left_x = box[0] - box[2] / 2
+        upper_left_y = box[1] - box[3] / 2
 
-        # Calculate box coordinates
-        xmin = int((x - w / 2) * width)
-        ymin = int((y - h / 2) * height)
-        xmax = int((x + w / 2) * width)
-        ymax = int((y + h / 2) * height)
-
-        # Draw bounding box rectangle
-        cv2.rectangle(im, (xmin, ymin), (xmax, ymax), colors[class_pred], 2)
-
+        # Convert float coordinates to integer (if needed)
+        x, y, w, h = int(upper_left_x * width), int(upper_left_y * height), int(box[2] * width), int(box[3] * height)
+        
+        # Draw the rectangle on the image
+        cv2.rectangle(bgr_image, (x, y), (x + w, y + h), colors[int(class_pred)], thickness=2)
+        
         # Add class label text
-        label = f"{class_labels[class_pred]}"
-        cv2.putText(im, label, (xmin, ymin - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, colors[class_pred], 2)
+        text = class_labels[int(class_pred)]
+        color = colors[int(class_pred)]
 
-    return im
+        # Define the text position at the top-left corner of the bounding box
+        text_position = (x, y)
 
+        # Define the rectangle box around the text
+        text_size, _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+        box_coords = ((text_position[0], text_position[1]), (text_position[0] + text_size[0] + 2, text_position[1] - text_size[1] - 2))
+
+        # Draw the rectangle box
+        cv2.rectangle(bgr_image, box_coords[0], box_coords[1], color, -1)  # -1 fills the rectangle
+
+        # Put the text on the image
+        cv2.putText(bgr_image, text, text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+
+    return bgr_image
 
 
 def get_evaluation_bboxes(

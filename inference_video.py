@@ -20,15 +20,15 @@ transform = transforms.Compose([
 ])
 
 # Load the video
-video_path = "test102.mp4"
+video_path = "test_video/test.mp4"
 cap = cv2.VideoCapture(video_path)
 
 # Define an output video writer
-output_path = 'output_video.mp4'
-frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-fps = int(cap.get(cv2.CAP_PROP_FPS))
-out = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame_width, frame_height))
+output_path = './inference_video/output_video.mp4'
+frame_width = config.IMAGE_SIZE
+frame_height = config.IMAGE_SIZE
+fps = 1
+video_writer = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame_width, frame_height))
 
 
 # Process each frame in the video
@@ -38,34 +38,35 @@ while cap.isOpened():
         break
 
     # Preprocess the frame
-    input_tensor = transform(frame)
-    input_tensor = input_tensor.unsqueeze(0).to(config.DEVICE)  # Add batch dimension
+    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    frame_pil = Image.fromarray(rgb_frame)
 
-    # Perform inference
+    # Apply transformation
+    input_tensor = transform(frame_pil).unsqueeze(0).to(config.DEVICE)
+
+    # Perform inference on the image
     with torch.no_grad():
         out = model(input_tensor)
         batch_size, A, S, _, _ = out[0].shape
         anchor = torch.tensor([*config.ANCHORS[0]]).to(config.DEVICE) * S
-        boxes_scale_i = cells_to_bboxes(out[0], anchor, S=S, is_preds=True)
+        boxes_scale_i = cells_to_bboxes(
+            out[0], anchor, S=S, is_preds=True
+        )
         bboxes = []
         for idx, (box) in enumerate(boxes_scale_i):
             bboxes += box
 
         nms_boxes = non_max_suppression(
-            bboxes, iou_threshold=0.5, threshold=0.6, box_format="midpoint",
+            bboxes, iou_threshold=0.5, threshold=0.1, box_format="midpoint",
         )
-
-        frame = display_video(frame, nms_boxes)
+        print(nms_boxes)
+        bgr_image = draw_bounding_boxes(rgb_frame, nms_boxes)
 
     # Write processed frame to the output video
-    out.write(frame)
+    video_writer.write(bgr_image)
 
-    # # Display the frame (optional)
-    # cv2.imshow('Frame', frame)
-    # if cv2.waitKey(2000) & 0xFF == ord('q'):
-    #     break
 
 # Release video capture and writer, and close windows
 cap.release()
-out.release()
+video_writer.release()
 cv2.destroyAllWindows()    
