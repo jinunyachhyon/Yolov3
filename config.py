@@ -1,4 +1,3 @@
-import cv2
 import torch
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -9,13 +8,13 @@ IMAGE_SIZE = 416
 NUM_CLASSES = 20
 LEARNING_RATE = 1e-5
 NUM_EPOCHS = 80
-CONF_THRESHOLD = 0.05
+CONF_THRESHOLD = 0.8
 MAP_IOU_THRESH = 0.5
 NMS_IOU_THRESH = 0.45
 S = [IMAGE_SIZE // 32, IMAGE_SIZE // 16, IMAGE_SIZE // 8]
 
-IMG_DIR = "/kaggle/input/pascalvoc-yolo/images"
-LABEL_DIR = "/kaggle/input/pascalvoc-yolo/labels"
+IMG_DIR = "images"
+LABEL_DIR = "labels"
 
 ANCHORS = [
     [(0.28, 0.22), (0.38, 0.48), (0.9, 0.78)],
