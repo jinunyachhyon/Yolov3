@@ -1,6 +1,7 @@
 # YOLOv3 Object Detection
 This repository implements YOLOv3 (You Only Look Once version 3) for object detection using PyTorch. <br>
-The link to original paper - **YOLOv3: An Incremental Improvement** [Link](https://arxiv.org/abs/1804.02767)
+The link to original paper - **YOLOv3: An Incremental Improvement** ([Link](https://arxiv.org/abs/1804.02767))
+
 
 ## Files
 
@@ -14,6 +15,7 @@ The link to original paper - **YOLOv3: An Incremental Improvement** [Link](https
 - `stitch_im2vdo.py`: Script for stitching images into a video after inference.
 - `train.py`: Script for training the YOLOv3 model.
 - `utils.py`: Utility functions used in YOLOv3.
+
 
 ## Usage
 
@@ -30,6 +32,14 @@ To train the YOLOv3 model, execute `train.py`:
 ```bash
 python train.py
 ```
+
+### Testing
+To test the YOLOv3 model, execute `test.py`:
+
+```bash
+python test.py --model path/to/model
+```
+
 
 ## Installation
 
@@ -53,11 +63,22 @@ Instead of training, you can use the pre-trained weight: `Yolov3_epoch80.pth` or
 * `Yolov3_epoch80.pth` : Trained on test.csv (4951 unique values) performs well on test-set images.
 * `Yolov3_epoch50.pth` : Trained on train.csv (16550 unique values) performs well on train-set images.
 
+
+## Result
+
+For `Yolov3_epoch80.pth` trained on test.csv (nearly 5k data), testing on seen dataset.
+
+* Loss = 2.0037
+* mAP = 0.837194
+
+
 ## Contributing
 Contributions, issues, and feature requests are welcome. Feel free to open issues or pull requests for improvements or fixes.
 
+
 ## License
 This project is licensed under the [MIT License](LICENSE) - see the [LICENSE](LICENSE) file for details.
+
 
 ## Acknowledgments
 The YOLOv3 implementation is based on the original YOLOv3 paper by Joseph Redmon and Ali Farhadi. <br>
