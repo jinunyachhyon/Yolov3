@@ -40,6 +40,13 @@ To test the YOLOv3 model, execute `test.py`:
 python test.py --model path/to/model
 ```
 
+### Video Inferernce
+To perform object detection on an video, use `inference_video.py`:
+
+```bash 
+python3 inference_video.py --model path/to/model --test_video path/to/video 
+```
+
 
 ## Installation
 

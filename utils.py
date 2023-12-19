@@ -279,12 +279,10 @@ def plot_image(image, boxes, image_path=None):
 
 def draw_bounding_boxes(image, boxes):
     """Draw bounding box in frames, using OpenCV because used in inference of Video."""
-    # Convert RGB array to BGR array (compatible with OpenCV)
-    bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
     class_labels = config.PASCAL_CLASSES
     colors = np.random.uniform(0, 255, size=(len(class_labels), 3))  # Random colors for each class
-    height, width, _ = bgr_image.shape
+    height, width, _ = image.shape
 
     # Draw bounding box in the image
     for box in boxes:
@@ -298,7 +296,7 @@ def draw_bounding_boxes(image, boxes):
         x, y, w, h = int(upper_left_x * width), int(upper_left_y * height), int(box[2] * width), int(box[3] * height)
         
         # Draw the rectangle on the image
-        cv2.rectangle(bgr_image, (x, y), (x + w, y + h), colors[int(class_pred)], thickness=2)
+        cv2.rectangle(image, (x, y), (x + w, y + h), colors[int(class_pred)], thickness=2)
         
         # Add class label text
         text = class_labels[int(class_pred)]
@@ -312,12 +310,24 @@ def draw_bounding_boxes(image, boxes):
         box_coords = ((text_position[0], text_position[1]), (text_position[0] + text_size[0] + 2, text_position[1] - text_size[1] - 2))
 
         # Draw the rectangle box
-        cv2.rectangle(bgr_image, box_coords[0], box_coords[1], color, -1)  # -1 fills the rectangle
+        cv2.rectangle(image, box_coords[0], box_coords[1], color, -1)  # -1 fills the rectangle
 
         # Put the text on the image
-        cv2.putText(bgr_image, text, text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(image, text, text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
 
-    return bgr_image
+    # Display the image using Matplotlib for 2 seconds
+    plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    plt.title('Prediction')
+    plt.axis('off')
+
+    # Display the image for 2 seconds
+    plt.pause(2)
+
+    # Close the plot window after 2 seconds
+    plt.close()
+    
+    return image
+
 
 
 def get_evaluation_bboxes(
