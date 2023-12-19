@@ -21,7 +21,7 @@ The link to original paper - **YOLOv3: An Incremental Improvement** [Link](https
 To perform object detection on an image, use `inference.py`:
 
 ```bash
-python inference.py 
+python inference.py --model path/to/model --test_image path/to/image
 ```
 
 ### Training
@@ -48,7 +48,10 @@ pip install -r requirements.txt
 ```
 
 ### Use pre-trained weights:
-Instead of training, you can use the pre-trained weight: `Yolov3_epoch80.pth`
+Instead of training, you can use the pre-trained weight: `Yolov3_epoch80.pth` or `Yolov3_epoch50.pth`.
+
+* `Yolov3_epoch80.pth` : Trained on test.csv (4951 unique values) performs well on test-set images.
+* `Yolov3_epoch50.pth` : Trained on train.csv (16550 unique values) performs well on train-set images.
 
 ## Contributing
 Contributions, issues, and feature requests are welcome. Feel free to open issues or pull requests for improvements or fixes.
