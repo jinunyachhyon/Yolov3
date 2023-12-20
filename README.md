@@ -15,6 +15,7 @@ The link to original paper - **YOLOv3: An Incremental Improvement** ([Link](http
 - `stitch_im2vdo.py`: Script for stitching images into a video after inference.
 - `train.py`: Script for training the YOLOv3 model.
 - `utils.py`: Utility functions used in YOLOv3.
+<br>
 
 
 ## Usage
@@ -44,8 +45,17 @@ python test.py --model path/to/model
 To perform object detection on an video, use `inference_video.py`:
 
 ```bash 
-python3 inference_video.py --model path/to/model --test_video path/to/video 
+python inference_video.py --model path/to/model --test_video path/to/video 
 ```
+
+### Multiprocessing Video Inference (Real Time)
+To perform object detection on an video, use `gpu_inference.py`:
+
+```bash
+cd multiprocessing_video
+python gpu_inference.py
+```
+<br>
 
 
 ## Installation
@@ -69,6 +79,7 @@ Instead of training, you can use the pre-trained weight: `Yolov3_epoch80.pth` or
 
 * `Yolov3_epoch80.pth` : Trained on test.csv (4951 unique values) performs well on test-set images.
 * `Yolov3_epoch50.pth` : Trained on train.csv (16550 unique values) performs well on train-set images.
+<br>
 
 
 ## Result
@@ -77,14 +88,17 @@ For `Yolov3_epoch80.pth` trained on test.csv (nearly 5k data), testing on seen d
 
 * Loss = 2.0037
 * mAP = 0.837194
+<br>
 
 
 ## Contributing
 Contributions, issues, and feature requests are welcome. Feel free to open issues or pull requests for improvements or fixes.
+<br>
 
 
 ## License
 This project is licensed under the [MIT License](LICENSE) - see the [LICENSE](LICENSE) file for details.
+<br>
 
 
 ## Acknowledgments
